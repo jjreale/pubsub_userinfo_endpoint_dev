@@ -114,7 +114,7 @@ def pubsub_userinfo_endpoint(request):
                 'supervisoryOrganization10', 'literalSupervisoryOrganization10', 'supervisoryOrganization11', 'literalSupervisoryOrganization11', 'supervisoryOrganization12', 
                 'literalSupervisoryOrganization12', 'supervisoryOrganization13', 'literalSupervisoryOrganization13', 'literalSupervisoryOrganization14', 'literalSupervisoryOrganization15', 
                 'managementLevel', 'buildingBlock', 'workerSubtype', 'jobFamily', 'jobFamilyGroup', 'buildingBlockDesc', 'workerSubtypeDesc', 'jobFamilyDesc', 'jobFamiliyGroupDesc', 'collectiveManager']
-
+        print("Entro a get_clean_dict ")
         message = get_clean_dict(raw_message, keys)
 
         if action == 'CREATE':
@@ -621,10 +621,11 @@ def get_area_clean(row):
 
 def get_clean_dict(y, keys):
     x = {}
-
+    print("dentro de get_clean_dict")
     for key in keys:
         try:
             x[key] = y.get(key)
+            print(x[key])
         except KeyError:
             x[key] = ""
         except AttributeError:
