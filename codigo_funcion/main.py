@@ -87,10 +87,14 @@ def pubsub_userinfo_endpoint(request):
             raw_message = str(json.loads(base64.b64decode(str(message_userinfo["message"]["data"]))))
 
         mysql_demo()
+        print("ya está conectado")
         with __get_cursor() as cursor:
+            print("entro get_cursor")
             message = str(raw_message).replace('"', '\\"').replace('\n', '\\n').replace("'", "\\'")
+            print(message)
             sql = 'INSERT INTO userinfotable_log (id, message) VALUES (DEFAULT, \'{}\')'.format(message)
             cursor.execute(sql)
+            print("sql --> ")
             cursor.close()
 
         # Remember to close SQL resources declared while running this function.
