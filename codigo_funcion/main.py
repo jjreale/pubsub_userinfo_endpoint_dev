@@ -35,6 +35,7 @@ mysql_config = {
     'autocommit': True
 }
 
+print("mysql_config: --> ", mysql_config)
 countries = {
     "ARGENTINA": "ARG",
     #"CHILE": "CHL",
@@ -81,7 +82,8 @@ def pubsub_userinfo_endpoint(request):
             print("final2 --> ")
             print(raw_message) 
         except:
-            action = "ERROR"
+            action = "ERROR" 
+            print("Entro al error")
             raw_message = str(json.loads(base64.b64decode(str(message_userinfo["message"]["data"]))))
 
         mysql_demo()
@@ -192,8 +194,12 @@ def mysql_demo():
     # which helps keep your GCF instances under SQL connection limits.
     if not mysql_conn:
         try:
+            print("mysql_config: --> ", mysql_config)
+            print("entrar a la conexión de mysql")
             mysql_conn = pymysql.connect(**mysql_config)
         except OperationalError:
+            print("mysql_config: --> ", mysql_config)
+            print("entrar a la conexión de mysql")
             # If production settings fail, use local development ones
             mysql_config['unix_socket'] = '/cloudsql/{CONNECTION_NAME}'.format(CONNECTION_NAME=CONNECTION_NAME)
             mysql_conn = pymysql.connect(**mysql_config)
