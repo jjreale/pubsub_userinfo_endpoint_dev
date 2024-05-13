@@ -1,0 +1,15 @@
+steps:
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: [
+          'functions', 
+          'deploy', 
+          'pubsub_userinfo_endpoint_prueba2',
+          '--no-gen2', 
+          '--runtime=python312', 
+          '--set-env-vars', 'INSTANCE_CONNECTION_NAME=dev-bbva-workplace-monitoring:europe-west1:bbva-workplace-datalake,MYSQL_PASSWORD=Rd77VteDF3XxUbG,MYSQL_USER=function,TOKEN=google8109420ab51dd472.html',
+          '--region=europe-west1',
+          '--source=codigo_funcion/.',
+          '--entry-point=pubsub_userinfo_endpoint',
+          '--trigger-http',
+          '--security-level=secure-optional'
+        ]
