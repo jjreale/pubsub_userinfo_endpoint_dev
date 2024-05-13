@@ -21,7 +21,6 @@ import pymysql
 from pymysql.err import OperationalError
 
 CONNECTION_NAME = getenv('INSTANCE_CONNECTION_NAME', 'dev-bbva-workplace-monitoring:europe-west1:bbva-workplace-datalake')
-
 DB_USER = getenv('MYSQL_USER')
 DB_PASSWORD = getenv('MYSQL_PASSWORD')
 DB_NAME = getenv('MYSQL_DATABASE', 'userinfo')
@@ -36,7 +35,6 @@ mysql_config = {
     'autocommit': True
 }
 
-print("mysql_config: --> ", mysql_config)
 countries = {
     "ARGENTINA": "ARG",
     #"CHILE": "CHL",
@@ -58,22 +56,18 @@ countries = {
 mysql_conn = None
 
 def pubsub_userinfo_endpoint(request):
-    if request.method == "POST":
-        print("entro por POST ")
+    if request.method == 'GET':
+        return '<html><head><meta name="google-site-verification" content="' + TOKEN + '" /><title> Mi título </title></head><body>contenido de la página</body></html>', 200
+    elif request.method == 'POST':
         message_userinfo = json.loads(urllib.parse.unquote(request.get_data().decode('utf-8')).rstrip('='))
-        # message_userinfo = urllib.parse.unquote(request.get_data().decode('utf-8')).rstrip('=')
         print ("entro por mensaje ")
         print (message_userinfo)
-        message1 = message_userinfo["message"]["data"]
-        print(message1)
-        # input = json.loads(base64.b64decode(str(message_userinfo["message"]["data"])))
-        # print(input)
         try:
             input = json.loads(base64.b64decode(str(message_userinfo["message"]["data"])))
             print(input)
             action = input["action"]
-            print(action)
             raw_message = input["data"]
+            print(action)
             print(raw_message)
             supervisories=raw_message['supervisories']
             del raw_message['supervisories']
@@ -85,21 +79,95 @@ def pubsub_userinfo_endpoint(request):
             for x, y in jobProfile.items():
                 raw_message[x]=y
             print("final2 --> ")
-            print(raw_message)    
-
+            print(raw_message) 
         except:
             action = "ERROR"
             raw_message = str(json.loads(base64.b64decode(str(message_userinfo["message"]["data"]))))
 
         mysql_demo()
+        with __get_cursor() as cursor:
+            message = str(raw_message).replace('"', '\\"').replace('\n', '\\n').replace("'", "\\'")
+            sql = 'INSERT INTO userinfotable_log (id, message) VALUES (DEFAULT, \'{}\')'.format(message)
+            cursor.execute(sql)
+            cursor.close()
+
+        # Remember to close SQL resources declared while running this function.
+        # Keep any declared in global scope (e.g. mysql_conn) for later reuse.
+
+        keys = ['uid', 'codOUNivel9', 'codCentroTrabajo', 'employeeNumberLargo', 'codOUNivel8',
+                'descOUNivel10', 'empresaempleado', 'descEmpresa', 'codOUNivel10', 'descpais', 'descOUNivel6', 'sn',
+                'corporateNumber', 'descCentroCoste', 'descBancoOficinaPers', 'sn2', 'codBancoOficinaPers',
+                'descCodPostalCentroTrabajo', 'codOUNivel3', 'givenName', 'unidadNegocio', 'descEstado', 'uidJefe',
+                'uidSupervisor', 'uidGestor', 'firmaDigital', 'telephoneNumber', 'codCargo', 'codOUNivel5',
+                'uidjefesecundario', 'descOUNivel7', 'codOUNivel6', 'codOUNivel4', 'descCentroTrabajo', 'postalCode',
+                'codOUNivel7', 'codOUNivel2', 'descLargaPlanta', 'codCSB', 'desccsb', 'tipocodependencia', 'mail',
+                'mobile', 'employeeType', 'descOUNivel8', 'codEstado', 'descOUNivel3', 'descOUNivel4', 'descOUNivel5',
+                'bancobensoc', 'descOUNivel2', 'codOUNivel1', 'pager', 'codCentroCoste', 'idpaislocal', 'title',
+                'descOUNivel9', 'descOUNivel1', 'codPostalCentroTrabajo', 'c', 'descempresaexterno', 'esempleado', 'o',
+                'codoficina', 'descoficina', 'esresponsable', 'oubase', 'descoubase', 'sexo', 'fechanacimiento',
+                'rangoglobal', 'empleadoVisible', 'visibilidad', 'nombrePreferido', 'apellidoPreferido', 'tipoContrato',
+                'areagestion', 'codzonages', 'desczonages', 'plantilla', 'ambitogestion', 'codRol', 'descRol', 'status',
+                'supervisoryOrganization', 'literalSupervisoryOrganization', 'supervisoryOrganization1', 'literalSupervisoryOrganization1', 'supervisoryOrganization2',
+                'literalSupervisoryOrganization2', 'supervisoryOrganization3', 'literalSupervisoryOrganization3', 'supervisoryOrganization4', 'literalSupervisoryOrganization4', 
+                'supervisoryOrganization5', 'literalSupervisoryOrganization5', 'supervisoryOrganization6', 'literalSupervisoryOrganization6', 'supervisoryOrganization7', 
+                'literalSupervisoryOrganization7', 'supervisoryOrganization8', 'literalSupervisoryOrganization8', 'supervisoryOrganization9', 'literalSupervisoryOrganization9', 
+                'supervisoryOrganization10', 'literalSupervisoryOrganization10', 'supervisoryOrganization11', 'literalSupervisoryOrganization11', 'supervisoryOrganization12', 
+                'literalSupervisoryOrganization12', 'supervisoryOrganization13', 'literalSupervisoryOrganization13', 'literalSupervisoryOrganization14', 'literalSupervisoryOrganization15', 
+                'managementLevel', 'buildingBlock', 'workerSubtype', 'jobFamily', 'jobFamilyGroup', 'buildingBlockDesc', 'workerSubtypeDesc', 'jobFamilyDesc', 'jobFamiliyGroupDesc', 'collectiveManager']
+
+        message = get_clean_dict(raw_message, keys)
+
         if action == 'CREATE':
-            return 'CREATE OK', 200
+            message['status'] = "C"
+            with __get_cursor() as cursor:
+                placeholders = ', '.join(['%s'] * len(message))
+                columns = ', '.join(message.keys())
+                sql = "INSERT INTO %s ( %s ) VALUES ( %s )" % ("userinfotable", columns, placeholders)
+                try:
+                    cursor.execute(sql, list(message.values()))
+                    mysql_conn.commit()
+                except:
+                    sql = 'UPDATE userinfotable SET {}'.format(
+                        ', '.join('{}=%s'.format(k) for k in message)) + " WHERE uid = '{}'".format(message.get('uid'))
+                    cursor.execute(sql, list(message.values()))
+                    mysql_conn.commit()
+                cursor.close()
+                return 'CREATE OK', 200
+        elif action == 'UPDATE':
+            message['status'] = "U"
+            with __get_cursor() as cursor:
+                sql = 'UPDATE userinfotable SET {}'.format(
+                    ', '.join('{}=%s'.format(k) for k in message)) + " WHERE uid = '{}'".format(message.get('uid'))
+                cursor.execute(sql, list(message.values()))
+                mysql_conn.commit()
+            cursor.close()
+            return "UPDATE OK", 200
+        elif action == 'DELETE':
+            message['status'] = "D"
+            with __get_cursor() as cursor:
+                sql = "UPDATE userinfotable SET status= 'D' WHERE uid='{}'".format(message.get('uid'))
+                cursor.execute(sql)
+                mysql_conn.commit()
+            cursor.close()
+            return "DELETE OK", 200
+        elif action == "ERROR":
+            with __get_cursor() as cursor:
+                message = str(message).replace('"', '\\"').replace('\n', '\\n').replace("'", "\\'")
+                sql = "INSERT INTO userinfotable_error (id, error) VALUES (DEFAULT, '{}')".format(message)
+                cursor.execute(sql)
+                mysql_conn.commit()
+            cursor.close()
+            return "ERROR OK", 200
         else:
+            with __get_cursor() as cursor:
+                message = str(message).replace('"', '\\"').replace('\n', '\\n').replace("'", "\\'")
+                sql = "INSERT INTO userinfotable_error (id, error) VALUES (DEFAULT, '{}')".format(message)
+                cursor.execute(sql)
+                mysql_conn.commit()
+            cursor.close()
             return "ACTION UNAVAILABLE", 405
     else:
-        print("salida --> ")
         return 'Method not allowed', 405
- 
 
 
 # [START functions_sql_mysql]
@@ -124,12 +192,8 @@ def mysql_demo():
     # which helps keep your GCF instances under SQL connection limits.
     if not mysql_conn:
         try:
-            print("mysql_config: --> ", mysql_config)
-            print("entrar a la conexión de mysql")
             mysql_conn = pymysql.connect(**mysql_config)
         except OperationalError:
-            print("mysql_config: --> ", mysql_config)
-            print("entrar a la conexión de mysql")
             # If production settings fail, use local development ones
             mysql_config['unix_socket'] = '/cloudsql/{CONNECTION_NAME}'.format(CONNECTION_NAME=CONNECTION_NAME)
             mysql_conn = pymysql.connect(**mysql_config)
