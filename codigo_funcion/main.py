@@ -75,6 +75,18 @@ def pubsub_userinfo_endpoint(request):
             print(action)
             raw_message = input["data"]
             print(raw_message)
+            supervisories=raw_message['supervisories']
+            del raw_message['supervisories']
+            jobProfile=raw_message['jobProfile']
+            del raw_message['jobProfile']
+            for x, y in supervisories.items():
+                raw_message[x]=y
+
+            for x, y in jobProfile.items():
+                raw_message[x]=y
+            print("final --> ")
+            print(raw_message)    
+            
         except:
             action = "ERROR"
             raw_message = str(json.loads(base64.b64decode(str(message_userinfo["message"]["data"]))))
