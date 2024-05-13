@@ -94,7 +94,6 @@ def pubsub_userinfo_endpoint(request):
             print(message)
             sql = 'INSERT INTO userinfotable_log (id, message) VALUES (DEFAULT, \'{}\')'.format(message)
             cursor.execute(sql)
-            print("sql --> ")
             cursor.close()
 
         # Remember to close SQL resources declared while running this function.
@@ -118,8 +117,9 @@ def pubsub_userinfo_endpoint(request):
                 'supervisoryOrganization5', 'literalSupervisoryOrganization5', 'supervisoryOrganization6', 'literalSupervisoryOrganization6', 'supervisoryOrganization7', 
                 'literalSupervisoryOrganization7', 'supervisoryOrganization8', 'literalSupervisoryOrganization8', 'supervisoryOrganization9', 'literalSupervisoryOrganization9', 
                 'supervisoryOrganization10', 'literalSupervisoryOrganization10', 'supervisoryOrganization11', 'literalSupervisoryOrganization11', 'supervisoryOrganization12', 
-                'literalSupervisoryOrganization12', 'supervisoryOrganization13', 'literalSupervisoryOrganization13', 'literalSupervisoryOrganization14', 'literalSupervisoryOrganization15', 
-                'managementLevel', 'buildingBlock', 'workerSubtype', 'jobFamily', 'jobFamilyGroup', 'buildingBlockDesc', 'workerSubtypeDesc', 'jobFamilyDesc', 'jobFamiliyGroupDesc', 'collectiveManager']
+                'literalSupervisoryOrganization12', 'supervisoryOrganization13', 'literalSupervisoryOrganization13', 'supervisoryOrganization14', 'literalSupervisoryOrganization14', 
+                'supervisoryOrganization15', 'literalSupervisoryOrganization15', 'managementLevel', 'buildingBlock', 'workerSubtype', 'jobFamily', 'jobFamilyGroup', 'buildingBlockDesc', 
+                'workerSubtypeDesc', 'jobFamilyDesc', 'jobFamiliyGroupDesc', 'collectiveManager']
         print("Entro a get_clean_dict ")
         message = get_clean_dict(raw_message, keys)
 
@@ -631,11 +631,9 @@ def get_area_clean(row):
 
 def get_clean_dict(y, keys):
     x = {}
-    print("dentro de get_clean_dict")
     for key in keys:
         try:
             x[key] = y.get(key)
-            print(x[key])
         except KeyError:
             x[key] = ""
         except AttributeError:
