@@ -84,9 +84,9 @@ def pubsub_userinfo_endpoint(request):
 
             for x, y in jobProfile.items():
                 raw_message[x]=y
-            print("final --> ")
+            print("final2 --> ")
             print(raw_message)    
-            
+
         except:
             action = "ERROR"
             raw_message = str(json.loads(base64.b64decode(str(message_userinfo["message"]["data"]))))
