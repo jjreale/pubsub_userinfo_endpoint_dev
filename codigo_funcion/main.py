@@ -84,7 +84,9 @@ def pubsub_userinfo_endpoint(request):
         except:
             action = "ERROR" 
             print("Entro al error")
+            print(raw_message)
             raw_message = str(json.loads(base64.b64decode(str(message_userinfo["message"]["data"]))))
+            print(raw_message)
 
         mysql_demo()
         print("ya está conectado")
@@ -157,6 +159,7 @@ def pubsub_userinfo_endpoint(request):
             cursor.close()
             return "DELETE OK", 200
         elif action == "ERROR":
+            print("entro al error2")
             with __get_cursor() as cursor:
                 message = str(message).replace('"', '\\"').replace('\n', '\\n').replace("'", "\\'")
                 sql = "INSERT INTO userinfotable_error (id, error) VALUES (DEFAULT, '{}')".format(message)
