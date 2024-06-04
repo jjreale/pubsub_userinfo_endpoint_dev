@@ -70,17 +70,18 @@ def pubsub_userinfo_endpoint(request):
             raw_message = input["data"]
             print(action)
             print(raw_message)
-            supervisories=raw_message['supervisories']
-            del raw_message['supervisories']
-            jobProfile=raw_message['jobProfile']
-            del raw_message['jobProfile']
-            for x, y in supervisories.items():
-                raw_message[x]=y
+            if action != 'DELETE':
+                supervisories=raw_message['supervisories']
+                del raw_message['supervisories']
+                jobProfile=raw_message['jobProfile']
+                del raw_message['jobProfile']
+                for x, y in supervisories.items():
+                    raw_message[x]=y
 
-            for x, y in jobProfile.items():
-                raw_message[x]=y
-            print("final2 --> ")
-            print(raw_message) 
+                for x, y in jobProfile.items():
+                    raw_message[x]=y
+                print("final2 --> ")
+                print(raw_message) 
         except:
             action = "ERROR" 
             print("Entro al error")
