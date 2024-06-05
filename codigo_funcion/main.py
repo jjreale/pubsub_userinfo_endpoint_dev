@@ -70,6 +70,7 @@ def pubsub_userinfo_endpoint(request):
             raw_message = input["data"]
             print(action)
             print(raw_message)
+            print(raw_message['uid'])
             if action != 'DELETE':
                 supervisories=raw_message['supervisories']
                 del raw_message['supervisories']
